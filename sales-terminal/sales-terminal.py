@@ -33,6 +33,9 @@ def generatePass(passType):
 def waitForCard():
     return input('Card serial number: ')
 
+def hasExistingPass(cardSerialNumber):
+    return r.exists(cardSerialNumber)
+
 def waitForPassSelection():
     print('Select a pass type:')
     print('')
@@ -50,7 +53,14 @@ def waitForPassSelection():
             return PASS_TYPE_TEN_TRIP
 
 def addPassToCard(cardSerialNumber, newPass):
+    r.hmset(cardSerialNumber, newPass)
+
+    # TODO Send a pubsub to say that a pass was issued.
+
     print('Thank you, your transaction is complete.')
+
+def cardHasPassError():
+    print('This card already has a valid pass associated with it.')
 
 def cardMismatch():
     print('You presented a different card, transaction canceled.')
@@ -60,17 +70,20 @@ while(True):
     # Get the serial number from the card
     cardSerialNumber = waitForCard()
 
-    # TODO Check if this card has a pass on it already...
-
-    # Wait for a pass type to be chosen
-    passType = waitForPassSelection()
-
-    # Wait for the card to be presented again
-    confirmCardSerialNumber = waitForCard()
-
-    # Check it is the same card
-    if (cardSerialNumber == confirmCardSerialNumber):
-        # Associate the pass with the card in Redis
-        addPassToCard(cardSerialNumber, generatePass(passType))
+    # Check if this card has a pass on it already...
+    if (hasExistingPass(cardSerialNumber)):
+        # Cannot add more than one pass to a card
+        cardHasPassError()
     else:
-        cardMismatch()
+        # Wait for a pass type to be chosen
+        passType = waitForPassSelection()
+
+        # Wait for the card to be presented again
+        confirmCardSerialNumber = waitForCard()
+
+        # Check it is the same card
+        if (cardSerialNumber == confirmCardSerialNumber):
+            # Associate the pass with the card in Redis
+            addPassToCard(cardSerialNumber, generatePass(passType))
+        else:
+            cardMismatch()
