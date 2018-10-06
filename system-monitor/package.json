@@ -1,0 +1,19 @@
+{
+  "name": "system-monitor",
+  "version": "0.0.1",
+  "description": "System Monitoring interface for Transit Pass Demo project.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonprickett/transit-pass-demo.git"
+  },
+  "author": "Simon Prickett",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simonprickett/transit-pass-demo/issues"
+  },
+  "homepage": "https://github.com/simonprickett/transit-pass-demo#readme"
+}
