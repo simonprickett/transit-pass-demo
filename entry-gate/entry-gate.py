@@ -8,7 +8,8 @@ PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
 PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
 
-RED = 13
+RED = 19
+YELLOW=13
 GREEN = 26
 
 TWO_HOURS = 60 * 60 * 2
@@ -80,12 +81,16 @@ def updatePass(cardSerialNumber, cardPass):
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(RED, GPIO.OUT)
-GPIO.setup(GREEN), GPIO.OUT)
+GPIO.setup(YELLOW, GPIO.OUT)
+GPIO.setup(GREEN, GPIO.OUT)
+
+GPIO.output(YELLOW, False)
 
 while(True):
     # Set the light to red
     print('Light: Red')
     GPIO.output(RED, True)
+    GPIO.output(GREEN, False)
 
     # Wait for a card to be presented
     cardSerialNumber = waitForCard()
@@ -99,9 +104,20 @@ while(True):
 
         playAudio('access-granted')
         print('Light: Solid Green')
+        GPIO.output(RED, False)
+        GPIO.output(GREEN, True)
         time.sleep(5)
     else:
         # TODO Send a pubsub for invalid use of card...
         print('Light: Flashing Red')
         playAudio('access-denied')
-        time.sleep(3)
+        GPIO.output(RED, False)
+        time.sleep(0.5)
+        GPIO.output(RED, True)
+        time.sleep(0.5)
+        GPIO.output(RED, False)
+        time.sleep(0.5)
+        GPIO.output(RED, True)
+        time.sleep(0.5)
+        GPIO.output(RED, False)
+        time.sleep(2)
