@@ -6,6 +6,8 @@ PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
 PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
 
+TWO_HOURS = 60 * 60 * 2
+
 # Connect to Redis Instance
 r = redis.Redis(
     host = os.environ['TRANSIT_PASS_DEMO_REDIS_HOST'],
@@ -21,10 +23,7 @@ def getPassForCard(cardSerialNumber):
     return r.hgetall(cardSerialNumber)
 
 def updatePass(cardSerialNumber, cardPass):
-    print(cardPass)
     passType = cardPass.get('passType')
-
-    print(passType)
 
     if (passType == PASS_TYPE_SINGLE_USE):
         # This is the only use allowed for this pass so delete it from Redis
@@ -35,8 +34,17 @@ def updatePass(cardSerialNumber, cardPass):
     elif (passType == PASS_TYPE_TWO_HOUR):
         # Check if this is first use and start expiring the pass if so...
         # Nothing to do except report this pass was used for a journey
-        print ('Two hour pass used.')
-        # TODO report remaining time?
+
+        passTtl = r.ttl(cardSerialNumber)
+
+        if (not passTtl):
+            print('Two hour pass first use, setting time to live.')
+
+            r.expire(cardSerialNumber, TWO_HOURS)
+            # TODO report activation
+        else:
+            print('Two hour pass has ' + str(round((passTtl / 60), 1)) + ' minutes remaining.')
+            # TODO report remaining time?
     else:
         # Ten trip pass, delete one from the number of remaining trips, delete from Redis if 0
         tripsRemaining = cardPass.get('tripsRemaining')
@@ -44,8 +52,8 @@ def updatePass(cardSerialNumber, cardPass):
         # Note tripsRemaining comes back as a String
         if (tripsRemaining == '1'):
             # Final trip for this pass, so delete this key
-            print('This ten trip pass has no more trips remaining, delete it.')
             r.delete(cardSerialNumber)
+            print('This ten trip pass has no more trips remaining, deleted it.')
 
             # Report that this pass used up all of its trips
         else:
