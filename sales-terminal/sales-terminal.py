@@ -22,7 +22,6 @@ def playAudio(audioFileName):
         # Assume Linux
         os.system('mpg123 -q audio/' + audioFileName + '.mp3')
 
-
 def generatePass(passType):
     if (passType == PASS_TYPE_SINGLE_USE):
         # Use once, never expires.
