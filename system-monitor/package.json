@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/simonprickett/transit-pass-demo#readme",
   "dependencies": {
-    "redis": "^2.8.0"
+    "chalk": "^2.4.1",
+    "node-redis-pubsub": "^3.0.0"
   }
 }
