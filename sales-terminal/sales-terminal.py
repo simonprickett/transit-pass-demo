@@ -10,7 +10,8 @@ PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
 r = redis.Redis(
     host = os.environ['TRANSIT_PASS_DEMO_REDIS_HOST'],
     port = os.environ['TRANSIT_PASS_DEMO_REDIS_PORT'],
-    password= os.environ['TRANSIT_PASS_DEMO_REDIS_PASSWORD']
+    password = os.environ['TRANSIT_PASS_DEMO_REDIS_PASSWORD'],
+    decode_responses = True
 )
 
 def playAudio(audioFileName):
