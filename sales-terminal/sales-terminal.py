@@ -1,3 +1,4 @@
+import json
 import platform
 import os
 import redis
@@ -84,6 +85,14 @@ def addPassToCard(cardSerialNumber, newPass):
     else:
         playAudio('thank-you-ten-trip-pass')
         print('Thanks for buying a ten trip pass.')
+
+    # Publish a message saying that a pass was issued.
+    msgPayload = {
+        'cardSerialNumber': cardSerialNumber,
+        'pass': newPass
+    }
+
+    r.publish('pass-issued', json.dumps(msgPayload, separators=(',', ':')))
 
 def cardHasPassError():
     playAudio('card-already-has-pass')
