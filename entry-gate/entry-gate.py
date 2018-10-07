@@ -1,11 +1,15 @@
 import platform
 import os
 import redis
+import RPi.GPIO as GPIO
 import time
 
 PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
 PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
+
+RED = 13
+GREEN = 26
 
 TWO_HOURS = 60 * 60 * 2
 
@@ -74,9 +78,14 @@ def updatePass(cardSerialNumber, cardPass):
             print('This ten trip pass has ' + str(newTripsRemaining) + ' more trips remaining.')
             # Report that this pass was used and has trips remaining
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(RED, GPIO.OUT)
+GPIO.setup(GREEN), GPIO.OUT)
+
 while(True):
     # Set the light to red
     print('Light: Red')
+    GPIO.output(RED, True)
 
     # Wait for a card to be presented
     cardSerialNumber = waitForCard()
