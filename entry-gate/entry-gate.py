@@ -1,3 +1,4 @@
+import platform
 import os
 import redis
 import time
@@ -15,6 +16,14 @@ r = redis.Redis(
     password = os.environ['TRANSIT_PASS_DEMO_REDIS_PASSWORD'],
     decode_responses = True
 )
+
+def playAudio(audioFileName):
+    if (platform.system() == 'Darwin'):
+        # MacOS testing
+        os.system('afplay audio/' + audioFileName + '.mp3')
+    else:
+        # Assume Linux
+        os.system('mpg123 -q audio/' + audioFileName + '.mp3')
 
 def waitForCard():
     return input('Card serial number: ')
@@ -79,9 +88,11 @@ while(True):
         # Update this card's pass
         updatePass(cardSerialNumber, cardPass)
 
+        playAudio('access-granted')
         print('Light: Solid Green')
         time.sleep(5)
     else:
         # TODO Send a pubsub for invalid use of card...
         print('Light: Flashing Red')
+        playAudio('access-denied')
         time.sleep(3)
