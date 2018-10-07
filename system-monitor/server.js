@@ -14,7 +14,7 @@ const PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
 const decodePassType = (passType) => {
   switch (passType) {
     case PASS_TYPE_SINGLE_USE:
-      return 'single use'
+      return 'single trip'
     case PASS_TYPE_TWO_HOUR:
       return 'two hour'
     case PASS_TYPE_TEN_TRIP:
