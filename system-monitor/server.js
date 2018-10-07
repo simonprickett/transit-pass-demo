@@ -26,6 +26,20 @@ r.on('pass-issued:*', (msg) => {
   console.log(chalk.yellow(`Card ${msg.cardSerialNumber} was issued a ${decodePassType(msg.pass.passType)} pass.`))
 })
 
-r.on('pass-issued:TEN_TRIP', (msg) => {
+r.on(`pass-issued:${PASS_TYPE_TEN_TRIP}`, (msg) => {
   console.log('This would be an extra action only for the ten trip pass...')  
+})
+
+r.on(`pass-activated:${PASS_TYPE_TWO_HOUR}`, (msg) => {
+  console.log(chalk.magenta(`Card ${msg.cardSerialNumber} two hour pass activated.`))
+})
+
+r.on('pass-used:*', (msg) => {
+  // some type of pass used
+  console.log(chalk.blue(`Card ${msg.cardSerialNumber} started a journey.`))
+  console.log(msg)
+})
+
+r.on('pass-denied:*', (msg) => {
+  console.log(chalk.red(`Card ${msg.cardSerialNumber} tried to start a journey without a valid pass!`))
 })
