@@ -72,8 +72,6 @@ def addPassToCard(cardSerialNumber, newPass):
     # Store in Redis.
     r.hmset(cardSerialNumber, newPass)
 
-    # TODO Send a pubsub to say that a pass was issued.
-
     passType = newPass.get('passType')
 
     if (passType == PASS_TYPE_SINGLE_USE):
@@ -92,7 +90,7 @@ def addPassToCard(cardSerialNumber, newPass):
         'pass': newPass
     }
 
-    r.publish('pass-issued', json.dumps(msgPayload, separators=(',', ':')))
+    r.publish('pass-issued:' + passType, json.dumps(msgPayload, separators=(',', ':')))
 
 def cardHasPassError():
     playAudio('card-already-has-pass')
