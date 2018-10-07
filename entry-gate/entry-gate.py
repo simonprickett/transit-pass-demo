@@ -1,3 +1,4 @@
+import json
 import platform
 import os
 import redis
@@ -8,10 +9,12 @@ PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
 PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
 
+# GPIO Pins for the traffic light LEDs
 RED = 19
 YELLOW=13
 GREEN = 26
 
+# Seconds in two hours used when activating two hour pass
 TWO_HOURS = 60 * 60 * 2
 
 # Connect to Redis Instance
@@ -29,6 +32,11 @@ def playAudio(audioFileName):
     else:
         # Assume Linux
         os.system('mpg123 -q audio/' + audioFileName + '.mp3')
+
+def sendMessage(topic, msgPayload):
+    print('sending to topic "' + topic + '"')
+    print(json.dumps(msgPayload, separators=(',', ':')))
+    r.publish(topic, json.dumps(msgPayload, separators=(',', ':')))
 
 def waitForCard():
     return input('Card serial number: ')
@@ -55,10 +63,19 @@ def updatePass(cardSerialNumber, cardPass):
             print('Two hour pass first use, setting time to live.')
 
             r.expire(cardSerialNumber, TWO_HOURS)
-            # TODO report activation
+            sendMessage('pass-activated:' + PASS_TYPE_TWO_HOUR, {
+                'cardSerialNumber': cardSerialNumber,
+                'pass': cardPass,
+                'remainingTime': TWO_HOURS  
+            })
         else:
             print('Two hour pass has ' + str(round((passTtl / 60), 1)) + ' minutes remaining.')
-            # TODO report remaining time?
+
+        sendMessage('pass-used:' + PASS_TYPE_TWO_HOUR, {
+            'cardSerialNumber': cardSerialNumber,
+            'pass': cardPass,
+            'remainingTime': passTtl  
+        })
     else:
         # Ten trip pass, delete one from the number of remaining trips, delete from Redis if 0
         tripsRemaining = cardPass.get('tripsRemaining')
