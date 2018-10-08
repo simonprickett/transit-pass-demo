@@ -139,9 +139,14 @@ while(True):
         GPIO.output(GREEN, True)
         time.sleep(5)
     else:
-        # TODO Send a pubsub for invalid use of card...
         print('Light: Flashing Red')
         playAudio('access-denied')
+
+        # Report unauthorized use attempt
+        sendMessage('pass-denied', {
+            'cardSerialNumber': cardSerialNumber
+        })
+
         GPIO.output(RED, False)
         time.sleep(0.5)
         GPIO.output(RED, True)
