@@ -33,6 +33,13 @@ def playAudio(audioFileName):
         # Assume Linux
         os.system('mpg123 -q audio/' + audioFileName + '.mp3')
 
+def flashRedLight(numTimes):
+    for x in range(numTimes - 1):
+        GPIO.output(RED, True)
+        time.sleep(0.5)
+        GPIO.output(RED, False)
+        time.sleep(0.5)
+
 def sendMessage(topic, msgPayload):
     r.publish(topic, json.dumps(msgPayload, separators=(',', ':')))
 
@@ -147,13 +154,4 @@ while(True):
             'cardSerialNumber': cardSerialNumber
         })
 
-        GPIO.output(RED, False)
-        time.sleep(0.5)
-        GPIO.output(RED, True)
-        time.sleep(0.5)
-        GPIO.output(RED, False)
-        time.sleep(0.5)
-        GPIO.output(RED, True)
-        time.sleep(0.5)
-        GPIO.output(RED, False)
-        time.sleep(2)
+        flashRedLight(4)
