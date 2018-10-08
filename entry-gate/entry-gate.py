@@ -3,6 +3,7 @@ import platform
 import os
 import redis
 import RPi.GPIO as GPIO
+import SimpleMFRC522
 import time
 
 PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
@@ -25,6 +26,9 @@ r = redis.Redis(
     decode_responses = True
 )
 
+# Set up Card Reader
+cardReader = SimpleMFRC522.SimpleMFRC522()
+
 def playAudio(audioFileName):
     if (platform.system() == 'Darwin'):
         # MacOS testing
@@ -44,7 +48,11 @@ def sendMessage(topic, msgPayload):
     r.publish(topic, json.dumps(msgPayload, separators=(',', ':')))
 
 def waitForCard():
-    return input('Card serial number: ')
+    print('Hold a travel card close to the reader.')
+    id, text = cardReader.read()
+    cardSerialNumber = str(id)
+    print('Card ' + cardSerialNumber + ' detected.')
+    return cardSerialNumber
 
 def getPassForCard(cardSerialNumber):
     return r.hgetall(cardSerialNumber)
@@ -124,34 +132,40 @@ GPIO.setup(GREEN, GPIO.OUT)
 
 GPIO.output(YELLOW, False)
 
-while(True):
-    # Set the light to red
-    print('Light: Red')
-    GPIO.output(RED, True)
+try:
+    while(True):
+        # Set the light to red
+        print('Light: Red')
+        GPIO.output(RED, True)
+        GPIO.output(GREEN, False)
+
+        # Wait for a card to be presented
+        cardSerialNumber = waitForCard()
+
+        # Does this card have a pass associated with it?
+        cardPass = getPassForCard(cardSerialNumber)
+
+        if (cardPass):
+            # Update this card's pass
+            updatePass(cardSerialNumber, cardPass)
+
+            playAudio('access-granted')
+            print('Light: Solid Green')
+            GPIO.output(RED, False)
+            GPIO.output(GREEN, True)
+            time.sleep(5)
+        else:
+            print('Light: Flashing Red')
+            playAudio('access-denied')
+
+            # Report unauthorized use attempt
+            sendMessage('pass-denied', {
+                'cardSerialNumber': cardSerialNumber
+            })
+
+            flashRedLight(4)
+
+finally:
+    GPIO.output(RED, False)
     GPIO.output(GREEN, False)
-
-    # Wait for a card to be presented
-    cardSerialNumber = waitForCard()
-
-    # Does this card have a pass associated with it?
-    cardPass = getPassForCard(cardSerialNumber)
-
-    if (cardPass):
-        # Update this card's pass
-        updatePass(cardSerialNumber, cardPass)
-
-        playAudio('access-granted')
-        print('Light: Solid Green')
-        GPIO.output(RED, False)
-        GPIO.output(GREEN, True)
-        time.sleep(5)
-    else:
-        print('Light: Flashing Red')
-        playAudio('access-denied')
-
-        # Report unauthorized use attempt
-        sendMessage('pass-denied', {
-            'cardSerialNumber': cardSerialNumber
-        })
-
-        flashRedLight(4)
+    GPIO.cleanup()
