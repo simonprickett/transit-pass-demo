@@ -34,8 +34,6 @@ def playAudio(audioFileName):
         os.system('mpg123 -q audio/' + audioFileName + '.mp3')
 
 def sendMessage(topic, msgPayload):
-    print('sending to topic "' + topic + '"')
-    print(json.dumps(msgPayload, separators=(',', ':')))
     r.publish(topic, json.dumps(msgPayload, separators=(',', ':')))
 
 def waitForCard():
