@@ -39,6 +39,6 @@ r.on(`pass-used:${PASS_TYPE_TEN_TRIP}`, (msg) => {
   console.log(chalk.yellow(`Card ${msg.cardSerialNumber} has ${msg.remainingTrips} of 10 trips remaining.`))
 })
 
-r.on('pass-denied:*', (msg) => {
+r.on('pass-denied', (msg) => {
   console.log(chalk.red(`Card ${msg.cardSerialNumber} tried to start a journey without a valid pass!`))
 })
