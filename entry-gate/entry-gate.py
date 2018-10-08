@@ -53,6 +53,11 @@ def updatePass(cardSerialNumber, cardPass):
 
         # Report this pass was used
         print('Single use pass used and deleted.')
+
+        sendMessage('pass-used:' + PASS_TYPE_SINGLE_USE, {
+            'cardSerialNumber': cardSerialNumber,
+            'pass': cardPass
+        })        
     elif (passType == PASS_TYPE_TWO_HOUR):
         # Check if this is first use and start expiring the pass if so...
         # Nothing to do except report this pass was used for a journey
@@ -87,14 +92,25 @@ def updatePass(cardSerialNumber, cardPass):
             print('This ten trip pass has no more trips remaining, deleted it.')
 
             # Report that this pass used up all of its trips
+            sendMessage('pass-used:' + PASS_TYPE_TEN_TRIP, {
+                'cardSerialNumber': cardSerialNumber,
+                'pass': cardPass,
+                'remainingTrips': 0
+            })
         else:
-            # TODO hincr by -1 this field
+            # Remove one trip from this pass
             r.hincrby(cardSerialNumber, 'tripsRemaining', -1)
 
             newTripsRemaining = (int(tripsRemaining) - 1)
 
             print('This ten trip pass has ' + str(newTripsRemaining) + ' more trips remaining.')
             # Report that this pass was used and has trips remaining
+
+            sendMessage('pass-used:' + PASS_TYPE_TEN_TRIP, {
+                'cardSerialNumber': cardSerialNumber,
+                'pass': cardPass,
+                'remainingTrips': newTripsRemaining
+            })
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(RED, GPIO.OUT)
