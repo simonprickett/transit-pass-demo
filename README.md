@@ -4,6 +4,8 @@
 
 A Transit pass demo system using Redis, Raspberry-Pi, Low Voltage Labs Traffic Light LEDs, RC522 RFID tags and associated reader hardware.  The code is a mixture of Python 3 and Node.js.
 
+**TODO** Add an overview video...
+
 ## Types of Transit Passes
 
 Imagine a transit system where users each have a smart card.  These cards each have a unique serial number.  In order to gain entry to the transit system a user's card must have a valid transit pass associated with it.  Exits from the system are not tracked.  In this example, the following types of pass exist:
