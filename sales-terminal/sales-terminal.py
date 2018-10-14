@@ -2,10 +2,15 @@ import json
 import platform
 import os
 import redis
+import RPi.GPIO as GPIO
 
 PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
 PASS_TYPE_TEN_TRIP = 'TEN_TRIP'
+
+GPIO_ONE_TRIP=19
+GPIO_TEN_TRIP=13
+GPIO_TWO_HOUR=26
 
 # Connect to Redis Instance
 r = redis.Redis(
@@ -14,6 +19,32 @@ r = redis.Redis(
     password = os.environ['TRANSIT_PASS_DEMO_REDIS_PASSWORD'],
     decode_responses = True
 )
+
+# Configure GPIO for buttons
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(GPIO_ONE_TRIP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(GPIO_TEN_TRIP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(GPIO_TWO_HOUR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+def waitForButton():
+    oneTrip = True
+    tenTrip = True
+    twoHour = True
+    
+    while (oneTrip and tenTrip and twoHour):
+        oneTrip = GPIO.input(GPIO_ONE_TRIP)
+        tenTrip = GPIO.input(GPIO_TEN_TRIP)
+        twoHour = GPIO.input(GPIO_TWO_HOUR)
+
+        if (oneTrip == False):
+            print('One trip button pressed.')
+            return GPIO_ONE_TRIP
+        elif (tenTrip == False):
+            print('Ten trip button pressed.')
+            return GPIO_TEN_TRIP
+        elif (twoHour == False):
+            print('Two hour button pressed.')
+            return GPIO_TWO_HOUR
 
 def playAudio(audioFileName):
     if (platform.system() == 'Darwin'):
@@ -51,22 +82,16 @@ def hasExistingPass(cardSerialNumber):
     return r.exists(cardSerialNumber)
 
 def waitForPassSelection():
-    print('Select a pass type:')
-    print('')
-    print('1 - single trip')
-    print('2 - two hour unlimited use pass')
-    print('3 - ten trip pass')
-
+    print('Waiting for user to press a button.')
     playAudio('select-a-pass')
-
-    while (True):
-        passType = input('Enter 1, 2 or 3: ')
-        if (passType == '1'):
-            return PASS_TYPE_SINGLE_USE
-        elif (passType == '2'):
-            return PASS_TYPE_TWO_HOUR
-        elif (passType == '3'):
-            return PASS_TYPE_TEN_TRIP
+    passType = waitForButton()
+    
+    if (passType == GPIO_ONE_TRIP):
+        return PASS_TYPE_SINGLE_USE
+    elif (passType == GPIO_TWO_HOUR):
+        return PASS_TYPE_TWO_HOUR
+    elif (passType == GPIO_TEN_TRIP):
+        return PASS_TYPE_TEN_TRIP
 
 def addPassToCard(cardSerialNumber, newPass):
     # Store in Redis.
