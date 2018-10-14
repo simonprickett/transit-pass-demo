@@ -3,6 +3,7 @@ import platform
 import os
 import redis
 import RPi.GPIO as GPIO
+import SimpleMFRC522
 
 PASS_TYPE_SINGLE_USE = 'SINGLE_USE'
 PASS_TYPE_TWO_HOUR = 'TWO_HOUR'
@@ -22,9 +23,21 @@ r = redis.Redis(
 
 # Configure GPIO for buttons
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 GPIO.setup(GPIO_ONE_TRIP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(GPIO_TEN_TRIP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(GPIO_TWO_HOUR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+# Set up card reader
+cardReader = SimpleMFRC522.SimpleMFRC522()
+
+def readFromCardReader():
+  print('Waiting for a card to be presented.')
+  id, text = cardReader.read()
+
+  cardSerialNumber = str(id)
+  print('Card ' + cardSerialNumber + ' presented.')
+  return cardSerialNumber
 
 def waitForButton():
     oneTrip = True
@@ -76,7 +89,7 @@ def waitForCard(confirmingCard = False):
     if (confirmingCard == True):
         playAudio('tap-card-to-confirm')
 
-    return input('Card serial number: ')
+    return readFromCardReader()
 
 def hasExistingPass(cardSerialNumber):
     return r.exists(cardSerialNumber)
