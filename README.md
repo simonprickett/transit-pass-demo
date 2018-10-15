@@ -4,7 +4,7 @@
 
 A Transit pass demo system using Redis, Raspberry-Pi, Low Voltage Labs Traffic Light LEDs, RC522 RFID tags and associated reader hardware.  The code is a mixture of Python 3 and Node.js.
 
-**TODO** Add an overview video...
+View a video demonstration [here](https://www.youtube.com/watch?v=Q_lmcA1x_Vg).
 
 ## Types of Transit Passes
 
