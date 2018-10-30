@@ -4,7 +4,9 @@
 
 A Transit pass demo system using Redis, Raspberry-Pi, Low Voltage Labs Traffic Light LEDs, RC522 RFID tags and associated reader hardware.  The code is a mixture of Python 3 and Node.js.
 
-View a video demonstration [here](https://www.youtube.com/watch?v=Q_lmcA1x_Vg).
+Click the image to view a complete video demonstration:
+
+[![video](images/videothumb.png)](https://www.youtube.com/watch?v=Q_lmcA1x_Vg)
 
 ## Types of Transit Passes
 
@@ -15,6 +17,8 @@ Imagine a transit system where users each have a smart card.  These cards each h
 * **Two Hour Pass:** This can be used for an unlimited number of entries, and expires two hours after the first time it is used.
 
 ## Components and Architecture
+
+![architecture](images/architecture.png)
 
 There are four main components to the system:
 
