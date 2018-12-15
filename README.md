@@ -8,6 +8,8 @@ Click the image to view a complete video demonstration:
 
 [![video](images/videothumb.png)](https://www.youtube.com/watch?v=Q_lmcA1x_Vg)
 
+I also wrote an [article on Medium](https://medium.com/@simon_prickett/building-a-smart-card-transit-ticketing-system-with-redis-and-raspberry-pi-820473c0b0c) describing this project.
+
 ## Types of Transit Passes
 
 Imagine a transit system where users each have a smart card.  These cards each have a unique serial number.  In order to gain entry to the transit system a user's card must have a valid transit pass associated with it.  Exits from the system are not tracked.  In this example, the following types of pass exist:
